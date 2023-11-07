@@ -91,6 +91,7 @@ public class Main {
 
             else if (choice1 == 3) {
                 System.out.println("Exiting...");
+                scanner.close();
                 return;
             }
 
