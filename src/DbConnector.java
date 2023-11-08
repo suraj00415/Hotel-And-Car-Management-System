@@ -3,8 +3,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DbConnector {
-    private static final String username="abc";
-    private static final String password="*******";
+    private static final String username="root";
+    private static final String password="Ocean@5612!";
     public Connection connection;
 
     public void dbConnector(String db_name) throws ClassNotFoundException, SQLException {

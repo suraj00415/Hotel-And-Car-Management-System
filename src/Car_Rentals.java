@@ -57,14 +57,14 @@ public class Car_Rentals implements Car_Interface {
                 int pricePerDay = resultSet.getInt("car_price");
                 int price = pricePerDay * days;
                 int carId = resultSet.getInt("carId");
-                String query1 = String.format("UPDATE car_booking SET isReserved=%d,customersId=%d,cust_name ='%s',days=%d WHERE car_name='%s';", 1, custId, custName, days, carName);
+                String query1 = String.format("UPDATE car_booking SET isReserved=%d,customersId=%d,cust_name ='%s',reserved_time=current_time,days=%d WHERE car_name='%s';", 1, custId, custName, days, carName);
                 String query2 = String.format("UPDATE customer SET cust_car_id=%d ,total_price=%d, car_name='%s' ,car_days=%d WHERE custId=%d;", carId, price, carName, days, custId);
                 try {
                     int result = statement.executeUpdate(query1);
                     statement.executeUpdate(query2);
                     if (result > 0) {
                         System.out.println("Booked Successfully");
-                        System.out.println("You Need To Pay :"+price+" Rs");
+                        System.out.println("You Need To Pay :" + price + " Rs");
                     } else {
                         System.out.println("Booking Failed!");
                     }
@@ -95,13 +95,13 @@ public class Car_Rentals implements Car_Interface {
                 int id = resultSet.getInt("carId");
                 String carName = resultSet.getString("car_name");
                 int isReserved = resultSet.getInt("isReserved");
-                int ppd=resultSet.getInt("car_price");
+                int ppd = resultSet.getInt("car_price");
                 // Format and display the reservation data in a table-like format
                 System.out.printf("| %-14d | %-15s | %-13d | %-24s |\n",
                         id, carName, isReserved, ppd);
             }
 
-            System.out.println("+----------------+-----------------+---------------+-------------------------+");
+            System.out.println("+----------------+-----------------+---------------+--------------------------+");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -112,8 +112,8 @@ public class Car_Rentals implements Car_Interface {
         System.out.println("Enter The Name of Car");
         String carName = scanner.next();
         System.out.println("Enter The Price of Car Per Day:");
-        int carPrice=scanner.nextInt();
-        String query = String.format("INSERT INTO car_booking (car_name,car_price) VALUES('%s',%d)", carName,carPrice);
+        int carPrice = scanner.nextInt();
+        String query = String.format("INSERT INTO car_booking (car_name,car_price) VALUES('%s',%d)", carName, carPrice);
         try {
             Statement statement = connection.createStatement();
             int rows = statement.executeUpdate(query);
@@ -160,8 +160,8 @@ public class Car_Rentals implements Car_Interface {
                 if (resultSet.next()) {
                     int customersId = resultSet.getInt("customersId");
                     if (customersId == custId) {
-                        String query1 = String.format("UPDATE car_booking SET isReserved=%d,customersId=%d ,cust_name=NULL, days=%d WHERE car_name='%s';", 0, -1, 0,carName);
-                        String query2 = String.format("UPDATE customer SET cust_car_id=%d ,car_name=NULL ,total_price=%d ,car_days=%d WHERE custId=%d;", -1,0,0, custId);
+                        String query1 = String.format("UPDATE car_booking SET isReserved=%d,customersId=%d ,cust_name=NULL, reserved_time=NULL,days=%d WHERE car_name='%s';", 0, -1, 0, carName);
+                        String query2 = String.format("UPDATE customer SET cust_car_id=%d ,car_name=NULL ,total_price=%d ,car_days=%d WHERE custId=%d;", -1, 0, 0, custId);
                         try {
                             int result = statement.executeUpdate(query1);
                             statement.executeUpdate(query2);
@@ -187,8 +187,9 @@ public class Car_Rentals implements Car_Interface {
         }
 
     }
+
     @Override
-    public void seeCarDetails(Connection connection,Scanner scanner){
+    public void seeCarDetails(Connection connection, Scanner scanner) {
         String carAvailable = "Select * from car_booking;";
 
         try {
@@ -202,13 +203,18 @@ public class Car_Rentals implements Car_Interface {
                 int id = resultSet.getInt("carId");
                 String carName = resultSet.getString("car_name");
                 int isReserved = resultSet.getInt("isReserved");
-                String reservationDate = resultSet.getTimestamp("reserved_time").toString();
+                String reservationDate;
+                if (resultSet.getTimestamp("reserved_time") == null) {
+                    reservationDate = "N/A";
+                } else {
+                    reservationDate = resultSet.getTimestamp("reserved_time").toString();
+                }
                 String custName = resultSet.getString("cust_name");
                 int ppd = resultSet.getInt("car_price");
                 int days = resultSet.getInt("days");
                 // Format and display the reservation data in a table-like format
-                System.out.printf("| %-14d | %-15s | %-13d | %-24s | %-20s | %-6d | %-16d |\n",
-                        id, carName, isReserved, reservationDate,custName,days,ppd);
+                System.out.printf("| %-14d | %-15s | %-14d | %-23s | %-20s | %-6d | %-16d |\n",
+                        id, carName, isReserved, reservationDate, custName, days, ppd);
             }
 
             System.out.println("+----------------+-----------------+----------------+-------------------------+----------------------+--------+------------------+");
@@ -216,8 +222,9 @@ public class Car_Rentals implements Car_Interface {
             System.out.println(e.getMessage());
         }
     }
+
     @Override
-    public void seeCustomerDetails(Connection connection,Scanner scanner){
+    public void seeCustomerDetails(Connection connection, Scanner scanner) {
         String carAvailable = "Select * from customer;";
 
         try {
@@ -236,7 +243,7 @@ public class Car_Rentals implements Car_Interface {
                 int days = resultSet.getInt("car_days");
                 // Format and display the reservation data in a table-like format
                 System.out.printf("| %-14d | %-15s | %-24s | %-14s | %-19d | %-6d |\n",
-                        id, cust_Name, email,carName,totalPrice,days);
+                        id, cust_Name, email, carName, totalPrice, days);
             }
             System.out.println("+----------------+-----------------+--------------------------+----------------+---------------------+--------+");
 

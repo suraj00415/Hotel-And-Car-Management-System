@@ -57,7 +57,7 @@ public class Hotel_Reservation extends DbConnector implements Hotel_Interface {
                 int pricePerDay = resultSet.getInt("room_price");
                 int price = pricePerDay * days;
                 int roomId = resultSet.getInt("roomId");
-                String query1 = String.format("UPDATE hotel_booking SET isReserved=%d,customerId=%d,cust_name ='%s',days=%d WHERE roomName=%d;", 1, custId, custName, days, roomName);
+                String query1 = String.format("UPDATE hotel_booking SET isReserved=%d,customerId=%d,cust_name ='%s',days=%d ,reserved_time=current_time WHERE roomName=%d;", 1, custId, custName, days, roomName);
                 String query2 = String.format("UPDATE customer SET cust_room_id=%d ,total_price=%d, room_name=%d ,hotel_days=%d WHERE custId=%d;", roomId, price, roomName, days, custId);
                 try {
                     int result = statement.executeUpdate(query1);
@@ -72,7 +72,7 @@ public class Hotel_Reservation extends DbConnector implements Hotel_Interface {
                     System.out.println(e.getMessage());
                 }
             } else {
-                System.out.println("Car Does Not Exists!");
+                System.out.println("Room Does Not Exists!");
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -87,7 +87,7 @@ public class Hotel_Reservation extends DbConnector implements Hotel_Interface {
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(carAvailable);
-            System.out.println("Available Cars :");
+            System.out.println("Available Rooms :");
             System.out.println("+----------------+-----------------+---------------+--------------------------+");
             System.out.println("|        ID       | Room Number    | isReserved    | Price Per Day            |");
             System.out.println("+----------------+-----------------+---------------+--------------------------+");
@@ -101,7 +101,7 @@ public class Hotel_Reservation extends DbConnector implements Hotel_Interface {
                         id, roomName, isReserved, ppd);
             }
 
-            System.out.println("+----------------+-----------------+---------------+-------------------------+");
+            System.out.println("+----------------+-----------------+---------------+--------------------------+");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -118,7 +118,7 @@ public class Hotel_Reservation extends DbConnector implements Hotel_Interface {
             Statement statement = connection.createStatement();
             int rows = statement.executeUpdate(query);
             if (rows > 0) {
-                System.out.println("Car Added Successfully");
+                System.out.println("Room Added Successfully");
             } else {
                 System.out.println("Failed To Add Car!");
             }
@@ -160,15 +160,15 @@ public class Hotel_Reservation extends DbConnector implements Hotel_Interface {
                 if (resultSet.next()) {
                     int customersId = resultSet.getInt("customerId");
                     if (customersId == custId) {
-                        String query1 = String.format("UPDATE hotel_booking SET isReserved=%d,customerId=%d ,cust_name=NULL, days=%d WHERE roomName=%d;", 0, -1, 0, roomName);
+                        String query1 = String.format("UPDATE hotel_booking SET isReserved=%d,customerId=%d ,cust_name=NULL,reserved_time=NULL, days=%d WHERE roomName=%d;", 0, -1, 0, roomName);
                         String query2 = String.format("UPDATE customer SET cust_room_id=%d ,room_name=NULL ,total_price=%d ,hotel_days=%d WHERE custId=%d;", -1, 0, 0, custId);
                         try {
                             int result = statement.executeUpdate(query1);
                             statement.executeUpdate(query2);
                             if (result > 0) {
-                                System.out.println("Returned Successfully");
+                                System.out.println("Checkout Successfully");
                             } else {
-                                System.out.println("Returned Failed!");
+                                System.out.println("Checkout Failed!");
                             }
                         } catch (SQLException e) {
                             System.out.println(e.getMessage());
@@ -177,7 +177,7 @@ public class Hotel_Reservation extends DbConnector implements Hotel_Interface {
                         System.out.println("Customer Does Not Have " + roomName);
                     }
                 } else {
-                    System.out.println("Car Does Not Exists!");
+                    System.out.println("Room Does Not Exists!");
                 }
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
@@ -203,7 +203,13 @@ public class Hotel_Reservation extends DbConnector implements Hotel_Interface {
                 int id = resultSet.getInt("roomId");
                 int roomName = resultSet.getInt("roomName");
                 int isReserved = resultSet.getInt("isReserved");
-                String reservationDate = resultSet.getTimestamp("reserved_time").toString();
+                String reservationDate;
+                if(resultSet.getTimestamp("reserved_time")==null){
+                    reservationDate ="N/A";
+                }
+                else{
+                reservationDate = resultSet.getTimestamp("reserved_time").toString();
+                }
                 String custName = resultSet.getString("cust_name");
                 int ppd = resultSet.getInt("room_price");
                 int days = resultSet.getInt("days");

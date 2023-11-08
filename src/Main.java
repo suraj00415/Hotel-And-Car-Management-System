@@ -1,4 +1,5 @@
 import java.sql.SQLException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
@@ -12,8 +13,10 @@ public class Main {
             System.out.println(e.getMessage());
         }
         while (true) {
+            try{
+
             System.out.println("------------------------------Welcome To Booking Portal!------------------------------");
-            System.out.println("Please Select any Choice");
+            System.out.println("Please Select The Following Services");
             System.out.println("1. Room Booking System");
             System.out.println("2. Car Booking System");
             System.out.println("3. Exit");
@@ -97,6 +100,10 @@ public class Main {
 
             else {
                 System.out.println("Choose Valid Options!");
+            }
+            }
+            catch (InputMismatchException e){
+                System.out.println("Input is Not Valid");
             }
         }
     }
